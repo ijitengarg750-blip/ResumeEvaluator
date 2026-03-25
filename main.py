@@ -6,8 +6,15 @@ import re
 
 app = FastAPI()
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = None
 
+def get_model():
+    global model
+    if model is None:
+        from sentence_transformers import SentenceTransformer
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+    return model
+    
 skills_list = [
     "python", "java", "machine learning", "deep learning",
     "data analysis", "sql", "tensorflow", "pytorch", "computer vision"
@@ -21,7 +28,7 @@ def split_sentences(text):
 
 
 def calculate_similarity(resume, job):
-    embeddings = model.encode([resume, job])
+    embeddings = get_model().encode([resume, job])
     return float(cosine_similarity([embeddings[0]], [embeddings[1]])[0][0] * 100)
 
 
@@ -38,14 +45,14 @@ def extract_skills_hybrid(text, skills_list, threshold=0.4):
     if not sentences:
         return exact
 
-    sent_emb = model.encode(sentences)
+    sent_emb = get_model().encode(sentences)
     semantic = []
 
     for skill in skills_list:
         if skill in exact:
             continue
 
-        skill_emb = model.encode([skill])[0]
+        skill_emb = get_model().encode([skill])[0]
 
         for emb in sent_emb:
             sim = cosine_similarity([emb], [skill_emb])[0][0]
