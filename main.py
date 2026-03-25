@@ -1,16 +1,17 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
 
 app = FastAPI()
+print("App is starting...")
 
 model = None
 
 def get_model():
     global model
     if model is None:
+        print("Loading model...")
         from sentence_transformers import SentenceTransformer
         model = SentenceTransformer('all-MiniLM-L6-v2')
     return model
@@ -97,8 +98,11 @@ class RequestData(BaseModel):
 @app.get("/")
 def home():
     return {"message": "API is working"}
-
-
+    
 @app.post("/analyze")
 def analyze(data: RequestData):
-    return final_score(data.resume, data.job_description)
+    return {"status": "working"}
+    
+# @app.post("/analyze")
+# def analyze(data: RequestData):
+#     return final_score(data.resume, data.job_description)
