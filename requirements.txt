@@ -1,6 +1,5 @@
 fastapi==0.135.2
 scikit-learn==1.8.0
-scipy==1.16.3
 seaborn==0.13.2
 sentence-transformers==5.3.0
 tokenizers==0.22.2
@@ -8,8 +7,6 @@ torch==2.11.0
 transformers==5.3.0
 typeguard==4.4.4
 typer==0.24.1
-typing-inspection==0.4.2
-typing_extensions==4.15.0
 tzdata==2025.3
 urllib3==2.6.3
 uvicorn==0.42.0
