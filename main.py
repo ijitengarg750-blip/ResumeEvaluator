@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
-
+import os
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -32,20 +32,31 @@ def split_sentences(text):
 import requests
 
 API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
-headers = {"Authorization": "Bearer HF_KEY_RESUME"}
+API_KEY = os.getenv("HF_API_KEY")
+
+headers = {
+    "Authorization": f"Bearer {API_KEY}"
+}
 
 def get_embedding(text):
     response = requests.post(API_URL, headers=headers, json={"inputs": text})
-    return response.json()
+    
+    data = response.json()
+    
+    if isinstance(data, dict) and "error" in data:
+        raise Exception(data["error"])
+    
+    return data
+    
+import numpy as np
 
 def calculate_similarity(resume, job):
-    emb1 = get_embedding(resume)
-    emb2 = get_embedding(job)
+    emb1 = np.array(get_embedding(resume))
+    emb2 = np.array(get_embedding(job))
 
     sim = cosine_similarity([emb1], [emb2])[0][0]
     return float(sim * 100)
-
-
+    
 def extract_skills(text, skills_list):
     text = text.lower()
     return [skill for skill in skills_list if skill in text]
