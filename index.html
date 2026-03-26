@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Resume Screener</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<h2>🚀 AI Resume Screener</h2>
+
+<label>Resume:</label>
+<textarea id="resume"></textarea>
+
+<label>Job Description:</label>
+<textarea id="job"></textarea>
+
+<button onclick="analyze()">Analyze</button>
+
+<div class="result" id="result"></div>
+
+<script>
+async function analyze() {
+    const resume = document.getElementById("resume").value;
+    const job = document.getElementById("job").value;
+
+    const response = await fetch("https://resumeevaluator-fddr.onrender.com/analyze", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            resume: resume,
+            job_description: job
+        })
+    });
+
+    const data = await response.json();
+
+    document.getElementById("result").innerHTML = `
+        <h3>Results:</h3>
+        <p><b>Final Score:</b> ${data.final_score}</p>
+        <p><b>Semantic Score:</b> ${data.semantic_score}</p>
+        <p><b>Skill Score:</b> ${data.skill_score}</p>
+        <p><b>Matched Skills:</b> ${data.matched_skills.join(", ")}</p>
+        <p><b>Missing Skills:</b> ${data.missing_skills.join(", ")}</p>
+    `;
+}
+</script>
+
+</body>
+</html>
