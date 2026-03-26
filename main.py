@@ -29,13 +29,20 @@ def split_sentences(text):
     return [s.strip() for s in sentences if s.strip()]
 
 
-def calculate_similarity(resume, job):
-    if not resume.strip() or not job.strip():
-        return 0.0
+import requests
 
-    vectorizer = TfidfVectorizer()
-    vectors = vectorizer.fit_transform([resume, job])
-    sim = cosine_similarity(vectors[0], vectors[1])[0][0]
+API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+headers = {"Authorization": "Bearer YOUR_API_KEY"}
+
+def get_embedding(text):
+    response = requests.post(API_URL, headers=headers, json={"inputs": text})
+    return response.json()
+
+def calculate_similarity(resume, job):
+    emb1 = get_embedding(resume)
+    emb2 = get_embedding(job)
+
+    sim = cosine_similarity([emb1], [emb2])[0][0]
     return float(sim * 100)
 
 
@@ -54,6 +61,10 @@ def skill_match_score(resume_skills, job_skills):
         return 0
     return (len(set(resume_skills) & set(job_skills)) / len(job_skills)) * 100
 
+def generate_suggestions(missing):
+    return [f"Consider adding {skill} to your resume" for skill in missing]
+
+
 def final_score(resume, job):
     sim = calculate_similarity(resume, job)
 
@@ -63,13 +74,14 @@ def final_score(resume, job):
     skill_score = skill_match_score(res_skills, jd_skills)
 
     final = 0.6 * sim + 0.4 * skill_score
-
+    missing_skills = list(set(jd_skills) - set(res_skills))
     return {
         "semantic_score": float(round(sim, 2)),
         "skill_score": float(round(skill_score, 2)),
         "final_score": float(round(final, 2)),
         "matched_skills": list(set(res_skills) & set(jd_skills)),
-        "missing_skills": list(set(jd_skills) - set(res_skills))
+        "missing_skills": missing_skills,
+        "suggestions": generate_suggestions(missing_skills)
     }
 
 # ---- API Schema ----
