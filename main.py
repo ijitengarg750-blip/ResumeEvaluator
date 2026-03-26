@@ -32,7 +32,7 @@ def split_sentences(text):
 import requests
 
 API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
-headers = {"Authorization": "Bearer YOUR_API_KEY"}
+headers = {"Authorization": "Bearer HF_KEY_RESUME"}
 
 def get_embedding(text):
     response = requests.post(API_URL, headers=headers, json={"inputs": text})
