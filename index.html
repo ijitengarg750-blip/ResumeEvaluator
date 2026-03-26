@@ -39,10 +39,12 @@
 
 <div class="result" id="result"></div>
 
+
+
 <script>
 async function analyze() {
-    const resume = document.getElementById("resume").value;
-    const job = document.getElementById("job").value;
+    const resume = document.getElementById("resume").value.trim();
+    const job = document.getElementById("job").value.trim();
 
     const response = await fetch("https://resumeevaluator-fddr.onrender.com/analyze", {
         method: "POST",
@@ -50,8 +52,8 @@ async function analyze() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            resume: resume,
-            job_description: job
+            resume: resume.replace(/\n/g, " "),
+            job_description: job.replace(/\n/g, " ")
         })
     });
 
